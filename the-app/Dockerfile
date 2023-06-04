@@ -1,13 +1,24 @@
-FROM python:3.9
+# Use the official Python base image
+FROM python:3.9-slim-buster
 
+# Set the working directory
 WORKDIR /app
 
+# Copy the requirements file
 COPY requirements.txt .
+
+# Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py .
+# Copy the Flask application files
+COPY . .
 
+# Expose the port your application runs on
+EXPOSE 80
 
-EXPOSE 80 443
+# Set environment variables
+ENV USERNAME=admin
+ENV PASSWORD=password
 
+# Start the Flask application
 CMD ["python", "app.py"]
