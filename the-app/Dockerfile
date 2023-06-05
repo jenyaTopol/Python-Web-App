@@ -1,13 +1,20 @@
-FROM python:3.9
+# Use the official Python image as the base image
+FROM python:3.9-slim
 
-WORKDIR /app
+# Set the working directory in the container
+WORKDIR usr/src/app
 
+# Copy the requirements file to the container
 COPY requirements.txt .
+
+# Install the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY app.py .
+# Copy the application code to the container
+COPY . .
 
+# Expose the port your application will run on
+EXPOSE 80
 
-EXPOSE 80 443
-
+# Run the Flask application
 CMD ["python", "app.py"]
