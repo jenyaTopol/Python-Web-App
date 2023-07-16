@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Build') {
+            steps {
+                // Clone your Git repository
+                git branch: 'main', url: 'https://github.com/your-repo.git'
+                
+                // Build the Docker image
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                        def image = docker.build("your-dockerhub-username/your-flask-app-image:${env.BUILD_NUMBER}")
+                        image.push()
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            environment {
+                // Set your Kubernetes context and namespace
+                KUBECONFIG = credentials('kubeconfig')
+                KUBE_NAMESPACE = 'your-namespace'
+            }
+            
+            steps {
+                // Install Helm and initialize Tiller
+                script {
+                    sh 'curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh'
+                    sh 'chmod +x get_helm.sh'
+                    sh './get_helm.sh'
+                    sh 'helm init --client-only'
+                }
+                
+                // Deploy the Helm chart
+                script {
+                    sh 'helm upgrade --install --wait --namespace $KUBE_NAMESPACE flask-app ./flask-app-chart'
+                }
+            }
+        }
+    }
+}
