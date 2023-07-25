@@ -1,10 +1,12 @@
 #CREATED BY JENYA
 
+
 version: '3'
 
 services:
   app:
-    build: .
+    build:
+      context: ./the-app
     ports:
       - 5000:5000
     depends_on:
@@ -20,26 +22,28 @@ services:
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
       MYSQL_ROOT_PASSWORD: myrootpassword
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - mynetwork
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-    networks:
-      - mynetwork
+#  nginx:
+#    image: nginx:latest
+#    ports:
+#      - 8080:80
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+#    networks:
+#      - mynetwork
 
-  reverse-proxy:
-    image: httpd:2.4
-    ports:
-      - 8080:80
-    volumes:
-      - ./reverse-proxy/httpd.conf:/usr/local/apache2/conf/httpd.conf
-    networks:
-      - mynetwork
+#  reverse-proxy:
+#    image: httpd:2.4
+#    ports:
+#      - 8080:80
+#    volumes:
+#      - ./reverse-proxy/httpd.conf:/usr/local/apache2/conf/httpd.conf
+#    networks:
+#      - mynetwork
 
 networks:
   mynetwork:
