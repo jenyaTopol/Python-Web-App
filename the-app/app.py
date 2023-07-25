@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-from config import Config
 
 app = Flask(__name__)
-app.config.from_object(Config)
-
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@mysql_host/db_name'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class User(db.Model):
@@ -31,5 +30,4 @@ def dashboard():
     return 'Welcome to the dashboard'
 
 if __name__ == '__main__':
-    db.create_all()
     app.run(host='0.0.0.0', port=5000)

@@ -1,25 +1,29 @@
-# Base image
-FROM python:3.9
+# Use the official Python image as the base image
+FROM python:3.9-slim
 
-# Set working directory
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the application code
+# Copy the application code into the container
 COPY . .
 
-# Expose the port
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install MySQL client
+RUN apt-get update && apt-get install -y default-mysql-client
+
+# Expose the port the Flask app will be listening on
 EXPOSE 5000
 
-# Set environment variables
-ENV MYSQL_USER=admin
-ENV MYSQL_PASSWORD=password
-ENV MYSQL_HOST=mysql
-ENV MYSQL_PORT=3306
-ENV MYSQL_DB=mydatabase
+# Start the MySQL service
+CMD ["service", "mysql", "start"]
 
-# Start the application
+# Wait for MySQL to start (You can adjust this wait time based on your setup)
+CMD ["sleep", "10"]
+
+# Initialize the database using the init.sql script
+RUN mysql -h mysql_host -u username -ppassword < ../db/init.sql
+
+# Start the Flask application
 CMD ["python", "app.py"]

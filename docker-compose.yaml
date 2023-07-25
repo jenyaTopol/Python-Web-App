@@ -1,49 +1,28 @@
 #CREATED BY JENYA
-
-
-version: '3'
+version: '3.8'
 
 services:
-  app:
+  web:
     build:
       context: ./the-app
-    ports:
-      - 5000:5000
+    expose:
+      - "5000"  # Expose port 5000 to the internal network (accessible by Nginx)
     depends_on:
-      - db
-    networks:
-      - mynetwork
+      - mysql
 
-  db:
-    image: mysql:5.7
-    restart: always
+  mysql:
+    image: mysql:latest
     environment:
-      MYSQL_DATABASE: mydatabase
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
-      MYSQL_ROOT_PASSWORD: myrootpassword
+      MYSQL_ROOT_PASSWORD: mysecretpassword
+      MYSQL_DATABASE: your_db_name
+      MYSQL_USER: username
+      MYSQL_PASSWORD: password
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - mynetwork
-
-#  nginx:
-#    image: nginx:latest
-#    ports:
-#      - 8080:80
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-#    networks:
-#      - mynetwork
-
-#  reverse-proxy:
-#    image: httpd:2.4
-#    ports:
-#      - 8080:80
-#    volumes:
-#      - ./reverse-proxy/httpd.conf:/usr/local/apache2/conf/httpd.conf
-#    networks:
-#      - mynetwork
-
-networks:
-  mynetwork:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - web
